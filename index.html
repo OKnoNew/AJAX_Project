@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX Приложение</title>
+    <style>
+        .link {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Простое AJAX-приложение</h1>
+<div id="links">
+    <span class="link" data-file="01.html">Псевдоссылка 1</span>
+    <span class="link" data-file="02.html">Псевдоссылка 2</span>
+    <span class="link" data-file="03.html">Псевдоссылка 3</span>
+</div>
+<div id="content"></div>
+
+<script>
+    document.querySelectorAll('.link').forEach(link => {
+        link.addEventListener('click', function () {
+            const file = this.dataset.file;
+            loadContent(file);
+            saveState(file);
+        });
+    });
+
+    function loadContent(file) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', file, true);
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                document.getElementById('content').innerHTML = xhr.responseText;
+            } else {
+                console.error('Ошибка загрузки файла:', xhr.statusText);
+            }
+        };
+        xhr.send();
+    }
+
+    function saveState(file) {
+        localStorage.setItem('lastFile', file);
+    }
+
+    function restoreState() {
+        const lastFile = localStorage.getItem('lastFile');
+        if (lastFile) {
+            loadContent(lastFile);
+        } else {
+            document.getElementById('content').innerHTML = '<p>Выберите содержимое для отображения.</p>';
+        }
+    }
+
+    // Восстанавливаем состояние при загрузке страницы
+    window.onload = restoreState;
+</script>
+
+</body>
+</html>
