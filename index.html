@@ -12,6 +12,42 @@
             margin: 5px;
         }
     </style>
+    <script>
+        function checkHash() {
+            if (window.location.hash.length > 2) {
+                // Извлекаем состояние и загружаем соответствующее содержимое
+                const file = window.location.hash.substring(1); // удаляем '#'
+                loadContent(file);
+            } else {
+                document.getElementById('content').innerHTML = '<p>Выберите содержимое для отображения.</p>';
+            }
+        }
+
+        function loadContent(file) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', file, true);
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    document.getElementById('content').innerHTML = xhr.responseText;
+                } else {
+                    console.error('Ошибка загрузки файла:', xhr.statusText);
+                }
+            };
+            xhr.send();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.link').forEach(link => {
+                link.addEventListener('click', function () {
+                    const file = this.dataset.file;
+                    window.location.hash = file; // обновляем хэш в адресной строке
+                    loadContent(file);
+                });
+            });
+
+            checkHash(); // Восстанавливаем состояние при загрузке страницы
+        });
+    </script>
 </head>
 <body>
 
@@ -22,48 +58,6 @@
     <span class="link" data-file="03.html">Псевдоссылка 3</span>
 </div>
 <div id="content"></div>
-
-<script>
-    document.querySelectorAll('.link').forEach(link => {
-        link.addEventListener('click', function () {
-            const file = this.dataset.file;
-            loadContent(file);
-            updateURL(file);
-        });
-    });
-
-    function loadContent(file) {
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', file, true);
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                document.getElementById('content').innerHTML = xhr.responseText;
-            } else {
-                console.error('Ошибка загрузки файла:', xhr.statusText);
-            }
-        };
-        xhr.send();
-    }
-
-    function updateURL(file) {
-        const url = new URL(window.location);
-        url.searchParams.set('file', file); // добавляем параметр 'file' в URL
-        window.history.pushState({ file: file }, '', url); // обновляем URL без перезагрузки страницы
-    }
-
-    function restoreState() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const file = urlParams.get('file');
-        if (file) {
-            loadContent(file);
-        } else {
-            document.getElementById('content').innerHTML = '<p>Выберите содержимое для отображения.</p>';
-        }
-    }
-
-    // Восстанавливаем состояние при загрузке страницы
-    window.onload = restoreState;
-</script>
 
 </body>
 </html>
