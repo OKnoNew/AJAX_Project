@@ -28,7 +28,7 @@
         link.addEventListener('click', function () {
             const file = this.dataset.file;
             loadContent(file);
-            saveState(file);
+            updateURL(file);
         });
     });
 
@@ -45,14 +45,17 @@
         xhr.send();
     }
 
-    function saveState(file) {
-        localStorage.setItem('lastFile', file);
+    function updateURL(file) {
+        const url = new URL(window.location);
+        url.searchParams.set('file', file); // добавляем параметр 'file' в URL
+        window.history.pushState({ file: file }, '', url); // обновляем URL без перезагрузки страницы
     }
 
     function restoreState() {
-        const lastFile = localStorage.getItem('lastFile');
-        if (lastFile) {
-            loadContent(lastFile);
+        const urlParams = new URLSearchParams(window.location.search);
+        const file = urlParams.get('file');
+        if (file) {
+            loadContent(file);
         } else {
             document.getElementById('content').innerHTML = '<p>Выберите содержимое для отображения.</p>';
         }
